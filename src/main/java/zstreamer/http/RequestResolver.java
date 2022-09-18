@@ -34,6 +34,7 @@ public class RequestResolver extends SimpleChannelInboundHandler<HttpObject> {
     private final FilterClassResolver filterResolver;
 
     private RequestResolver(Environment env) {
+        super(false);
         String handlerPackage = env.getProperty(ServerPropertyKeys.HANDLER_PACKAGE, String.class, ServerPropertyDefault.HANDLER_PACKAGE);
         String filterPackage = env.getProperty(ServerPropertyKeys.FILTER_PACKAGE, String.class, ServerPropertyDefault.FILTER_PACKAGE);
         handlerResolver = new HandlerClassResolver(handlerPackage);
