@@ -25,6 +25,7 @@ C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zs
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\entity\response\simple\SimpleResponse.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\chunk\ChunkHeader.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\messageType\control\AckMessage.java
+C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\commons\loader\FilterBeanResolver.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\handler\AbstractHttpHandler.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\entity\request\WrappedContent.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\RequestDispatcher.java
@@ -39,16 +40,13 @@ C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zs
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\handlers\media\MetaDataHandler.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\chunk\ChunkDecoder.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\chunk\ChunkCodec.java
-C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\commons\loader\FilterClassResolver.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\entity\request\RequestInfo.java
-C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\commons\loader\UrlClassTier.java
-C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\commons\loader\HandlerClassResolver.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\example\handler\httpflv\AudienceHandler.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\ContextHandler.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\chunk\ChunkEncoder.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\ZstreamerServer.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\handshake\RtmpHandShaker.java
-C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\commons\loader\BasePackageClassloader.java
+C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\commons\loader\HandlerBeanResolver.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\http\entity\request\WrappedRequest.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\messageType\RtmpMessage.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\afm\AfmEncoder.java
@@ -65,6 +63,7 @@ C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zs
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\ssl\SslHandlerBuilder.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\handlers\control\ChunkSizeHandler.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\handlers\control\WindowAckSizeHandler.java
+C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\commons\loader\UrlBeanTier.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\messageType\RawMessage.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\handlers\control\PeerBandWidthHandler.java
 C:\Users\31405\Desktop\IDEA项目\spring-boot-starter-zstreamer\src\main\java\zstreamer\rtmp\message\handlers\control\AckSenderReceiver.java

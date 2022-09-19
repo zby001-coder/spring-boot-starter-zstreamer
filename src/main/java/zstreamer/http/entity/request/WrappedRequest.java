@@ -3,7 +3,7 @@ package zstreamer.http.entity.request;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
-import zstreamer.commons.loader.UrlClassTier;
+import zstreamer.commons.loader.UrlBeanTier;
 import zstreamer.http.filter.AbstractHttpFilter;
 import zstreamer.http.handler.AbstractHttpHandler;
 
@@ -50,11 +50,11 @@ public abstract class WrappedRequest {
         return requestInfo.getMethod();
     }
 
-    public UrlClassTier.ClassInfo<AbstractHttpHandler> getHandlerInfo() {
+    public UrlBeanTier.BeanInfo<AbstractHttpHandler> getHandlerInfo() {
         return requestInfo.getHandlerInfo();
     }
 
-    public List<UrlClassTier.ClassInfo<AbstractHttpFilter>> getFilterInfo() {
+    public List<UrlBeanTier.BeanInfo<AbstractHttpFilter>> getFilterInfo() {
         return requestInfo.getFilterInfo();
     }
 

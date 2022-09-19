@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.server.WebServerException;
 import org.springframework.core.env.Environment;
+import zstreamer.commons.HandlerInjector;
 import zstreamer.commons.constance.ServerPropertyDefault;
 import zstreamer.commons.constance.ServerPropertyKeys;
 
@@ -25,13 +26,15 @@ public class ZstreamerServer implements WebServer {
     private NioEventLoopGroup boss;
     private NioEventLoopGroup worker;
     private final Environment env;
+    private final HandlerInjector handlerInjector;
     private final int httpPort;
     private final int rtmpPort;
     private final int bossCount;
     private final int workerCount;
 
-    public ZstreamerServer(Environment env) {
+    public ZstreamerServer(Environment env, HandlerInjector handlerInjector) {
         this.env = env;
+        this.handlerInjector = handlerInjector;
         httpPort = env.getProperty(ServerPropertyKeys.HTTP_PORT, Integer.class, ServerPropertyDefault.HTTP_PORT);
         rtmpPort = env.getProperty(ServerPropertyKeys.RTMP_PORT, Integer.class, ServerPropertyDefault.RTMP_PORT);
         bossCount = env.getProperty(ServerPropertyKeys.BOSS_COUNT, Integer.class, ServerPropertyDefault.BOSS_COUNT);
@@ -51,7 +54,7 @@ public class ZstreamerServer implements WebServer {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline()
-                                .addLast(new HandlerInjector(env));
+                                .addLast(handlerInjector);
                     }
                 });
         try {

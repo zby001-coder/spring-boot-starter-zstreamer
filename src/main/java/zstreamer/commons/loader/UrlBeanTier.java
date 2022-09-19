@@ -9,17 +9,16 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * @param <T> 保存的class的类型
  * @author 张贝易
- * 将url对应的class保存在一颗前缀树中
- */
-public class UrlClassTier<T> {
-    private final HashMap<String, UrlClassTier<T>> children = new HashMap<>();
+ * @date 2022/9/19
+ **/
+public class UrlBeanTier<T> {
+    private final HashMap<String, UrlBeanTier<T>> children = new HashMap<>();
     private final String present;
     private String url;
-    private final LinkedList<Class<T>> handlerClz = new LinkedList<>();
+    private final LinkedList<T> handlers = new LinkedList<>();
 
-    public UrlClassTier() {
+    public UrlBeanTier() {
         present = "";
     }
 
@@ -28,14 +27,14 @@ public class UrlClassTier<T> {
      *
      * @param splitPrefix 所有前缀的数组
      * @param idx         当前前缀的索引
-     * @param handlerClz  url对应的handler的class对象
+     * @param handler     url对应的handler的实例
      */
-    private UrlClassTier(String[] splitPrefix, int idx, Class<T> handlerClz, String url) {
+    private UrlBeanTier(String[] splitPrefix, int idx, T handler, String url) {
         present = splitPrefix[idx];
         if (idx + 1 < splitPrefix.length) {
-            children.put(splitPrefix[idx + 1], new UrlClassTier<T>(splitPrefix, idx + 1, handlerClz, url));
+            children.put(splitPrefix[idx + 1], new UrlBeanTier<T>(splitPrefix, idx + 1, handler, url));
         } else {
-            this.handlerClz.add(handlerClz);
+            this.handlers.add(handler);
             this.url = url;
         }
     }
@@ -43,19 +42,19 @@ public class UrlClassTier<T> {
     /**
      * 从头开始添加前缀
      *
-     * @param url        url字符串
-     * @param handlerClz url对应的handler的class对象
+     * @param url     url字符串
+     * @param handler url对应的handler对象
      */
-    public void addPrefix(String url, Class<T> handlerClz, Function<String, String> initializer) {
+    public void addPrefix(String url, T handler, Function<String, String> initializer) {
         String origin = url;
         url = initializer.apply(url);
         String[] splitPrefix = url.split("/");
         if (!children.containsKey(splitPrefix[0])) {
-            children.put(splitPrefix[0], new UrlClassTier<T>(splitPrefix, 0, handlerClz, origin));
+            children.put(splitPrefix[0], new UrlBeanTier<T>(splitPrefix, 0, handler, origin));
         } else if (splitPrefix.length > 1) {
-            children.get(splitPrefix[0]).addPrefix(splitPrefix, 1, handlerClz, origin);
+            children.get(splitPrefix[0]).addPrefix(splitPrefix, 1, handler, origin);
         } else {
-            children.get(splitPrefix[0]).handlerClz.add(handlerClz);
+            children.get(splitPrefix[0]).handlers.add(handler);
             children.get(splitPrefix[0]).url = url;
         }
     }
@@ -65,21 +64,21 @@ public class UrlClassTier<T> {
      *
      * @param splitPrefix 前缀数组
      * @param childIdx    当前tier的儿子前缀的索引，即下一个tier的前缀索引
-     * @param handlerClz  url对应的handler的class对象
+     * @param handler     url对应的handler对象
      * @param origin      原始的url
      */
-    private void addPrefix(String[] splitPrefix, int childIdx, Class<T> handlerClz, String origin) {
+    private void addPrefix(String[] splitPrefix, int childIdx, T handler, String origin) {
         if (!children.containsKey(splitPrefix[childIdx])) {
-            children.put(splitPrefix[childIdx], new UrlClassTier<T>(splitPrefix, childIdx, handlerClz, origin));
+            children.put(splitPrefix[childIdx], new UrlBeanTier<T>(splitPrefix, childIdx, handler, origin));
         } else if (splitPrefix.length > childIdx + 1) {
-            children.get(splitPrefix[childIdx]).addPrefix(splitPrefix, childIdx + 1, handlerClz, origin);
+            children.get(splitPrefix[childIdx]).addPrefix(splitPrefix, childIdx + 1, handler, origin);
         } else {
-            children.get(splitPrefix[childIdx]).handlerClz.add(handlerClz);
+            children.get(splitPrefix[childIdx]).handlers.add(handler);
             children.get(splitPrefix[childIdx]).url = origin;
         }
     }
 
-    public ClassInfo<T> matchHandler(String url) {
+    public BeanInfo<T> matchHandler(String url) {
         url = UrlTool.formatHandlerPath(url);
         return matchHandler(url.split("/"), 0, this);
     }
@@ -92,8 +91,8 @@ public class UrlClassTier<T> {
      * @param tier     当前前缀树
      * @return handler信息
      */
-    private ClassInfo<T> matchHandler(String[] prefixes, int childIdx, UrlClassTier<T> tier) {
-        ClassInfo<T> result = null;
+    private BeanInfo<T> matchHandler(String[] prefixes, int childIdx, UrlBeanTier<T> tier) {
+        BeanInfo<T> result = null;
         if (tier == null) {
             return null;
         }
@@ -114,10 +113,10 @@ public class UrlClassTier<T> {
      * @param tier     当前的前缀树
      * @return 如果能一直匹配到底就返回handler信息，否则返回null
      */
-    private ClassInfo<T> matchHandlerExactly(String[] prefixes, int childIdx, UrlClassTier<T> tier) {
+    private BeanInfo<T> matchHandlerExactly(String[] prefixes, int childIdx, UrlBeanTier<T> tier) {
         if (childIdx + 1 >= prefixes.length) {
-            UrlClassTier<T> child = tier.children.get(prefixes[childIdx]);
-            return (child.url != null && hasElement(child.handlerClz)) ? new ClassInfo<T>(child.handlerClz.get(0), child.url) : null;
+            UrlBeanTier<T> child = tier.children.get(prefixes[childIdx]);
+            return (child.url != null && hasElement(child.handlers)) ? new BeanInfo<T>(child.handlers.get(0), child.url) : null;
         } else {
             return matchHandler(prefixes, childIdx + 1, tier.children.get(prefixes[childIdx]));
         }
@@ -131,10 +130,10 @@ public class UrlClassTier<T> {
      * @param tier     当前的前缀树
      * @return 如果能一直匹配到底就返回handler信息，否则返回null
      */
-    private ClassInfo<T> matchHandlerPlaceholder(String[] prefixes, int childIdx, UrlClassTier<T> tier) {
+    private BeanInfo<T> matchHandlerPlaceholder(String[] prefixes, int childIdx, UrlBeanTier<T> tier) {
         if (childIdx + 1 >= prefixes.length) {
-            UrlClassTier<T> child = tier.children.get(HandlerConstance.PLACE_HOLDER_REPLACER_STR);
-            return (child.url != null && hasElement(child.handlerClz)) ? new ClassInfo<>(child.handlerClz.get(0), child.url) : null;
+            UrlBeanTier<T> child = tier.children.get(HandlerConstance.PLACE_HOLDER_REPLACER_STR);
+            return (child.url != null && hasElement(child.handlers)) ? new BeanInfo<>(child.handlers.get(0), child.url) : null;
         } else {
             return matchHandler(prefixes, childIdx + 1, tier.children.get(HandlerConstance.PLACE_HOLDER_REPLACER_STR));
         }
@@ -146,7 +145,7 @@ public class UrlClassTier<T> {
      * @param url 请求的url
      * @return 对应的filter链表
      */
-    public List<ClassInfo<T>> matchFilter(String url) {
+    public List<BeanInfo<T>> matchFilter(String url) {
         url = UrlTool.formatHandlerPath(url);
         return matchFilter(url.split("/"), 0, this);
     }
@@ -159,22 +158,22 @@ public class UrlClassTier<T> {
      * @param tier     前缀树
      * @return 对应的filter链表
      */
-    private List<ClassInfo<T>> matchFilter(String[] prefixes, int childIdx, UrlClassTier<T> tier) {
-        LinkedList<ClassInfo<T>> result = new LinkedList<>();
+    private List<BeanInfo<T>> matchFilter(String[] prefixes, int childIdx, UrlBeanTier<T> tier) {
+        LinkedList<BeanInfo<T>> result = new LinkedList<>();
         if (tier == null) {
             return result;
         }
         if (tier.children.containsKey(HandlerConstance.PLACE_HOLDER_REPLACER_STR)) {
-            UrlClassTier<T> child = tier.children.get(HandlerConstance.PLACE_HOLDER_REPLACER_STR);
-            for (Class<T> tClass : child.handlerClz) {
-                result.add(new ClassInfo<>(tClass, child.url));
+            UrlBeanTier<T> child = tier.children.get(HandlerConstance.PLACE_HOLDER_REPLACER_STR);
+            for (T handler : child.handlers) {
+                result.add(new BeanInfo<>(handler, child.url));
             }
         }
         if (childIdx + 1 >= prefixes.length) {
-            UrlClassTier<T> child = tier.children.get(prefixes[childIdx]);
+            UrlBeanTier<T> child = tier.children.get(prefixes[childIdx]);
             if (child != null && !prefixes[childIdx].equals(HandlerConstance.PLACE_HOLDER_REPLACER_STR)) {
-                for (Class<T> tClass : child.handlerClz) {
-                    result.add(new ClassInfo<>(tClass, child.url));
+                for (T handler : child.handlers) {
+                    result.add(new BeanInfo<>(handler, child.url));
                 }
             }
         } else {
@@ -188,7 +187,7 @@ public class UrlClassTier<T> {
      *
      * @param list 链表
      */
-    private boolean hasElement(LinkedList<Class<T>> list) {
+    private boolean hasElement(LinkedList list) {
         return (list != null && list.size() > 0);
     }
 
@@ -197,17 +196,17 @@ public class UrlClassTier<T> {
      *
      * @param <T> class类型
      */
-    public static class ClassInfo<T> {
-        private final Class<T> clz;
+    public static class BeanInfo<T> {
+        private final T bean;
         private final String urlPattern;
 
-        public ClassInfo(Class<T> clz, String urlPattern) {
-            this.clz = clz;
+        public BeanInfo(T bean, String urlPattern) {
+            this.bean = bean;
             this.urlPattern = urlPattern;
         }
 
-        public Class<T> getClz() {
-            return clz;
+        public T getBean() {
+            return bean;
         }
 
         public String getUrlPattern() {

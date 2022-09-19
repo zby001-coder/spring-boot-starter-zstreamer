@@ -1,18 +1,14 @@
 package zstreamer.commons.loader;
 
+import org.springframework.stereotype.Component;
 import zstreamer.commons.constance.HandlerConstance;
 import zstreamer.commons.util.UrlTool;
 
 import java.util.HashMap;
 
+@Component
 public class UrlResolver {
-    private static final UrlResolver INSTANCE = new UrlResolver();
-
-    public static UrlResolver getInstance() {
-        return INSTANCE;
-    }
-
-    private UrlResolver() {
+    public UrlResolver() {
     }
 
     public RestfulUrl resolveUrl(String url, String urlPattern) {

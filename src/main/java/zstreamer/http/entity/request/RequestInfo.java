@@ -2,7 +2,7 @@ package zstreamer.http.entity.request;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
-import zstreamer.commons.loader.UrlClassTier;
+import zstreamer.commons.loader.UrlBeanTier;
 import zstreamer.http.filter.AbstractHttpFilter;
 import zstreamer.http.handler.AbstractHttpHandler;
 
@@ -32,15 +32,15 @@ public class RequestInfo {
     /**
      * 处理该请求的handler信息
      */
-    private final UrlClassTier.ClassInfo<AbstractHttpHandler> handlerInfo;
+    private final UrlBeanTier.BeanInfo<AbstractHttpHandler> handlerInfo;
     /**
      * 处理该请求的filter信息
      */
-    private final List<UrlClassTier.ClassInfo<AbstractHttpFilter>> filterInfo;
+    private final List<UrlBeanTier.BeanInfo<AbstractHttpFilter>> filterInfo;
 
     public RequestInfo(HttpHeaders headers, String url, HttpMethod method,
-                       UrlClassTier.ClassInfo<AbstractHttpHandler> handlerInfo,
-                       List<UrlClassTier.ClassInfo<AbstractHttpFilter>> filterInfo,
+                       UrlBeanTier.BeanInfo<AbstractHttpHandler> handlerInfo,
+                       List<UrlBeanTier.BeanInfo<AbstractHttpFilter>> filterInfo,
                        Map<String, ?> params) {
         this.headers = headers;
         this.url = url;
@@ -53,8 +53,8 @@ public class RequestInfo {
     }
 
     public RequestInfo(HttpHeaders headers, String url, HttpMethod method,
-                       UrlClassTier.ClassInfo<AbstractHttpHandler> handlerInfo,
-                       List<UrlClassTier.ClassInfo<AbstractHttpFilter>> filterInfo) {
+                       UrlBeanTier.BeanInfo<AbstractHttpHandler> handlerInfo,
+                       List<UrlBeanTier.BeanInfo<AbstractHttpFilter>> filterInfo) {
         this(headers, url, method, handlerInfo, filterInfo, null);
     }
 
@@ -86,11 +86,11 @@ public class RequestInfo {
         return method;
     }
 
-    public UrlClassTier.ClassInfo<AbstractHttpHandler> getHandlerInfo() {
+    public UrlBeanTier.BeanInfo<AbstractHttpHandler> getHandlerInfo() {
         return handlerInfo;
     }
 
-    public List<UrlClassTier.ClassInfo<AbstractHttpFilter>> getFilterInfo() {
+    public List<UrlBeanTier.BeanInfo<AbstractHttpFilter>> getFilterInfo() {
         if (filterInfo != null) {
             return new ArrayList<>(filterInfo);
         }

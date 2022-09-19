@@ -1,4 +1,4 @@
-package zstreamer;
+package zstreamer.commons;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
@@ -7,7 +7,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.traffic.ChannelTrafficShapingHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import zstreamer.commons.constance.ServerPropertyDefault;
 import zstreamer.commons.constance.ServerPropertyKeys;
 import zstreamer.http.*;
@@ -27,7 +29,16 @@ import java.net.InetSocketAddress;
  * 初始化所有handler的工具
  */
 @ChannelHandler.Sharable
+@Component
 public class HandlerInjector extends ChannelInitializer<SocketChannel> {
+    @Autowired
+    private RequestDispatcher requestDispatcher;
+    @Autowired
+    private ResponseResolver responseResolver;
+    @Autowired
+    private FilterExecutor filterExecutor;
+    @Autowired
+    private RequestResolver requestResolver;
     private final Environment env;
 
     public HandlerInjector(Environment env) {
@@ -60,10 +71,10 @@ public class HandlerInjector extends ChannelInitializer<SocketChannel> {
         pipeline
                 .addLast(new HttpServerCodec())
                 .addLast(new ChunkedWriteHandler())
-                .addLast(ResponseResolver.getInstance(env))
-                .addLast(RequestResolver.getInstance(env))
-                .addLast(FilterExecutor.getInstance())
-                .addLast(RequestDispatcher.getInstance())
+                .addLast(responseResolver)
+                .addLast(requestResolver)
+                .addLast(filterExecutor)
+                .addLast(requestDispatcher)
                 .addLast(new ContextHandler(env));
     }
 

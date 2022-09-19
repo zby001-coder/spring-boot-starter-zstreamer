@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedFile;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import zstreamer.commons.constance.ServerPropertyDefault;
 import zstreamer.commons.constance.ServerPropertyKeys;
 import zstreamer.http.entity.response.WrappedResponse;
@@ -22,25 +23,14 @@ import java.util.concurrent.TimeUnit;
  * 将包装的响应解析成可用的数据
  */
 @ChannelHandler.Sharable
+@Component
 public class ResponseResolver extends ChannelOutboundHandlerAdapter {
-    private static volatile ResponseResolver INSTANCE;
     private final boolean sslEnabled;
     private final int fileChunkSize;
     private final int chunkMaxFailTime;
     private final int chunkRetryInterval;
 
-    public static ResponseResolver getInstance(Environment env) {
-        if (INSTANCE == null) {
-            synchronized (ResponseResolver.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new ResponseResolver(env);
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
-    private ResponseResolver(Environment env) {
+    public ResponseResolver(Environment env) {
         this.sslEnabled = env.getProperty(ServerPropertyKeys.SSL_ENABLED, Boolean.class, ServerPropertyDefault.SSL_ENABLED);
         this.fileChunkSize = env.getProperty(ServerPropertyKeys.FILE_CHUNK_SIZE, Integer.class, ServerPropertyDefault.FILE_CHUNK_SIZE);
         this.chunkMaxFailTime = env.getProperty(ServerPropertyKeys.CHUNK_RESPONSE_FAIL_MAX_TIME, Integer.class, ServerPropertyDefault.CHUNK_RESPONSE_FAIL_MAX_TIME);

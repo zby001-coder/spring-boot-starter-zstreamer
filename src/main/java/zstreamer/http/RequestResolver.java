@@ -7,12 +7,11 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.springframework.core.env.Environment;
-import zstreamer.commons.constance.ServerPropertyDefault;
-import zstreamer.commons.constance.ServerPropertyKeys;
-import zstreamer.commons.loader.FilterClassResolver;
-import zstreamer.commons.loader.HandlerClassResolver;
-import zstreamer.commons.loader.UrlClassTier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import zstreamer.commons.loader.FilterBeanResolver;
+import zstreamer.commons.loader.HandlerBeanResolver;
+import zstreamer.commons.loader.UrlBeanTier;
 import zstreamer.commons.loader.UrlResolver;
 import zstreamer.commons.util.InstanceTool;
 import zstreamer.http.entity.request.RequestInfo;
@@ -28,28 +27,17 @@ import java.util.List;
  * 将请求的url解析并将请求包装起来
  */
 @ChannelHandler.Sharable
+@Component
 public class RequestResolver extends SimpleChannelInboundHandler<HttpObject> {
-    private static volatile RequestResolver INSTANCE;
-    private final HandlerClassResolver handlerResolver;
-    private final FilterClassResolver filterResolver;
+    @Autowired
+    private HandlerBeanResolver handlerResolver;
+    @Autowired
+    private FilterBeanResolver filterResolver;
+    @Autowired
+    private UrlResolver urlResolver;
 
-    private RequestResolver(Environment env) {
+    public RequestResolver() {
         super(false);
-        String handlerPackage = env.getProperty(ServerPropertyKeys.HANDLER_PACKAGE, String.class, ServerPropertyDefault.HANDLER_PACKAGE);
-        String filterPackage = env.getProperty(ServerPropertyKeys.FILTER_PACKAGE, String.class, ServerPropertyDefault.FILTER_PACKAGE);
-        handlerResolver = new HandlerClassResolver(handlerPackage);
-        filterResolver = new FilterClassResolver(filterPackage);
-    }
-
-    public static RequestResolver getInstance(Environment env) {
-        if (INSTANCE == null) {
-            synchronized (ResponseResolver.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new RequestResolver(env);
-                }
-            }
-        }
-        return INSTANCE;
     }
 
     @Override
@@ -70,12 +58,12 @@ public class RequestResolver extends SimpleChannelInboundHandler<HttpObject> {
     private void handleHeader(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {
         //解析url，获取其对应handler信息
         String url = msg.uri();
-        UrlClassTier.ClassInfo<AbstractHttpHandler> handlerInfo = handlerResolver.resolveHandler(url);
+        UrlBeanTier.BeanInfo<AbstractHttpHandler> handlerInfo = handlerResolver.resolveHandler(url);
         if (handlerInfo != null) {
-            List<UrlClassTier.ClassInfo<AbstractHttpFilter>> filterInfo = filterResolver.resolveFilter(handlerInfo.getUrlPattern());
+            List<UrlBeanTier.BeanInfo<AbstractHttpFilter>> filterInfos = filterResolver.resolveFilter(handlerInfo.getUrlPattern());
             //将url中的参数解析出来，包装后传递下去
-            UrlResolver.RestfulUrl restfulUrl = UrlResolver.getInstance().resolveUrl(url, handlerInfo.getUrlPattern());
-            RequestInfo requestInfo = new RequestInfo(msg.headers(), restfulUrl.getUrl(), msg.method(), handlerInfo, filterInfo, restfulUrl.getParams());
+            UrlResolver.RestfulUrl restfulUrl = urlResolver.resolveUrl(url, handlerInfo.getUrlPattern());
+            RequestInfo requestInfo = new RequestInfo(msg.headers(), restfulUrl.getUrl(), msg.method(), handlerInfo, filterInfos, restfulUrl.getParams());
             ctx.fireUserEventTriggered(requestInfo);
             //传递消息
             ctx.fireChannelRead(new WrappedHead(msg, requestInfo));
