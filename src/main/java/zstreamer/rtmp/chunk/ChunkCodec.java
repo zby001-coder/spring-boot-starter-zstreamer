@@ -3,6 +3,9 @@ package zstreamer.rtmp.chunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import zstreamer.rtmp.message.messageType.RawMessage;
 
 import java.util.HashMap;
@@ -17,6 +20,8 @@ import java.util.List;
  * @see MessageSplitter
  * @see MessageMerger
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ChunkCodec extends ByteToMessageCodec<RawMessage> {
     private final MessageMerger messageMerger = new MessageMerger();
     private final MessageSplitter messageSplitter = new MessageSplitter();

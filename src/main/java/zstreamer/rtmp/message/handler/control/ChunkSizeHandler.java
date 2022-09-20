@@ -1,8 +1,11 @@
-package zstreamer.rtmp.message.handlers.control;
+package zstreamer.rtmp.message.handler.control;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import zstreamer.rtmp.chunk.ChunkCodec;
 import zstreamer.rtmp.message.messageType.control.ChunkSizeMessage;
 
@@ -11,6 +14,8 @@ import zstreamer.rtmp.message.messageType.control.ChunkSizeMessage;
  * 处理分片大小的消息的handler，主要就是设置ChunkCodec中的chunkSize，这个指令是双向的
  * @see ChunkCodec
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ChunkSizeHandler extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

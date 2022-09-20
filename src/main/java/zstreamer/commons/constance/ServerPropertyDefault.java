@@ -28,8 +28,14 @@ public class ServerPropertyDefault {
      * 文件分片传输时的分片大小
      */
     public static final int FILE_CHUNK_SIZE = 8192;
+    /**
+     * chunk响应的最大重试次数和重试间隔和期望连续成功写出的chunk数量
+     */
     public static final int CHUNK_RESPONSE_FAIL_MAX_TIME = 10;
-    public static final int CHUNK_RESPONSE_RETRY_INTERVAL = 10;
+    public static final int MAX_CHUNK_RESPONSE_RETRY_INTERVAL = 10000;
+    public static final int MIN_CHUNK_RESPONSE_RETRY_INTERVAL = 100;
+    public static final int INITIAL_CHUNK_RESPONSE_RETRY_INTERVAL = 300;
+    public static final int PREFER_SUCCESS_CHUNK = 150;
 
     /**
      * http连接最大空闲时间，毫秒

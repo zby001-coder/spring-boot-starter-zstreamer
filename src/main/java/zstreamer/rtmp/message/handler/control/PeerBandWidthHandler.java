@@ -1,7 +1,10 @@
-package zstreamer.rtmp.message.handlers.control;
+package zstreamer.rtmp.message.handler.control;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import zstreamer.rtmp.message.messageType.control.PeerBandWidthMessage;
 
 /**
@@ -13,6 +16,8 @@ import zstreamer.rtmp.message.messageType.control.PeerBandWidthMessage;
  * @see AckSenderReceiver
  * @see WindowAckSizeHandler
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class PeerBandWidthHandler extends SimpleChannelInboundHandler<PeerBandWidthMessage> {
 
     @Override

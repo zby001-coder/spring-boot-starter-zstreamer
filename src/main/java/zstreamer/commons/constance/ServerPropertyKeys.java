@@ -29,10 +29,13 @@ public class ServerPropertyKeys {
      */
     public static final String FILE_CHUNK_SIZE = "zstreamer.file.chunk.size";
     /**
-     * chunk类型的响应的重试最大次数和重试间隔
+     * chunk类型的响应的重试最大次数和重试间隔和期望连续成功的chunk次数
      */
     public static final String CHUNK_RESPONSE_FAIL_MAX_TIME = "zstreamer.http.chunk.max-fail-time";
-    public static final String CHUNK_RESPONSE_RETRY_INTERVAL = "zstreamer.http.chunk.retry-interval";
+    public static final String MAX_CHUNK_RESPONSE_RETRY_INTERVAL = "zstreamer.http.chunk.max-retry-interval";
+    public static final String MIN_CHUNK_RESPONSE_RETRY_INTERVAL = "zstreamer.http.chunk.min-retry-interval";
+    public static final String INITIAL_CHUNK_RESPONSE_RETRY_INTERVAL = "zstreamer.http.chunk.initial-retry-interval";
+    public static final String PREFER_SUCCESS_CHUNK = "zstreamer.http.chunk.prefer-success-chunk";
 
     /**
      * http连接最大空闲时间，毫秒

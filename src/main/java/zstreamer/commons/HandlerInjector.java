@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.traffic.ChannelTrafficShapingHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import zstreamer.commons.constance.ServerPropertyDefault;
@@ -17,8 +18,8 @@ import zstreamer.rtmp.chunk.ChunkCodec;
 import zstreamer.rtmp.handshake.RtmpHandShaker;
 import zstreamer.rtmp.message.codec.RtmpMessageDecoder;
 import zstreamer.rtmp.message.codec.RtmpMessageEncoder;
-import zstreamer.rtmp.message.handlers.MessageHandlerInitializer;
-import zstreamer.rtmp.message.handlers.control.AckSenderReceiver;
+import zstreamer.rtmp.stream.handler.MessageHandlerInitializer;
+import zstreamer.rtmp.message.handler.control.AckSenderReceiver;
 import zstreamer.ssl.SslHandlerBuilder;
 
 import javax.net.ssl.SSLException;
@@ -39,6 +40,8 @@ public class HandlerInjector extends ChannelInitializer<SocketChannel> {
     private FilterExecutor filterExecutor;
     @Autowired
     private RequestResolver requestResolver;
+    @Autowired
+    private ApplicationContext ctx;
     private final Environment env;
 
     public HandlerInjector(Environment env) {
@@ -80,11 +83,11 @@ public class HandlerInjector extends ChannelInitializer<SocketChannel> {
 
     private void initRtmp(ChannelPipeline pipeline) {
         pipeline
-                .addLast(new RtmpHandShaker())
-                .addLast(new AckSenderReceiver())
-                .addLast(new ChunkCodec())
-                .addLast(new RtmpMessageDecoder())
-                .addLast(new RtmpMessageEncoder())
-                .addLast(new MessageHandlerInitializer());
+                .addLast(ctx.getBean(RtmpHandShaker.class))
+                .addLast(ctx.getBean(AckSenderReceiver.class))
+                .addLast(ctx.getBean(ChunkCodec.class))
+                .addLast(ctx.getBean(RtmpMessageDecoder.class))
+                .addLast(ctx.getBean(RtmpMessageEncoder.class))
+                .addLast(ctx.getBean(MessageHandlerInitializer.class));
     }
 }

@@ -2,6 +2,9 @@ package zstreamer.rtmp.message.codec;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import zstreamer.rtmp.chunk.ChunkCodec;
 import zstreamer.rtmp.message.messageType.RawMessage;
 import zstreamer.rtmp.message.messageType.RtmpMessage;
@@ -12,6 +15,8 @@ import java.util.List;
  * @author 张贝易
  * 将各种RtmpMessage都转变成RawMessage
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RtmpMessageEncoder extends MessageToMessageEncoder<RtmpMessage> {
     @Override
     protected void encode(ChannelHandlerContext ctx, RtmpMessage msg, List<Object> out) {

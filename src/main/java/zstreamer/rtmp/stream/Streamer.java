@@ -1,7 +1,6 @@
-package zstreamer.rtmp;
+package zstreamer.rtmp.stream;
 
 import io.netty.channel.ChannelHandlerContext;
-import zstreamer.MediaMessagePool;
 import zstreamer.rtmp.message.messageType.media.DataMessage;
 import zstreamer.rtmp.message.messageType.media.MediaMessage;
 
@@ -15,10 +14,12 @@ public class Streamer {
      */
     private final String roomName;
     private final ChannelHandlerContext context;
+    private final MediaMessagePool mediaMessagePool;
 
-    public Streamer(String roomName, ChannelHandlerContext context) {
+    public Streamer(String roomName, ChannelHandlerContext context, MediaMessagePool mediaMessagePool) {
         this.context = context;
         this.roomName = roomName;
+        this.mediaMessagePool = mediaMessagePool;
     }
 
     /**
@@ -42,7 +43,7 @@ public class Streamer {
             this.sei = msg;
         } else {
             //将MediaMessage推送到信息的池子里
-            MediaMessagePool.pushMediaMessage(roomName, msg, this);
+            mediaMessagePool.pushMediaMessage(roomName, msg, this);
         }
     }
 

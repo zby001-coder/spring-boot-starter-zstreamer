@@ -1,10 +1,16 @@
-package zstreamer.rtmp.message.handlers.command;
+package zstreamer.rtmp.message.handler.command;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import zstreamer.MediaMessagePool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import zstreamer.rtmp.example.MemoryMediaMessagePool;
 import zstreamer.rtmp.message.afm.AfmObject;
-import zstreamer.rtmp.message.handlers.media.StreamerMediaHandler;
+import zstreamer.rtmp.stream.MediaMessagePool;
+import zstreamer.rtmp.stream.handler.StreamerMediaHandler;
 import zstreamer.rtmp.message.messageType.command.CommandMessage;
 import zstreamer.rtmp.message.messageType.control.ChunkSizeMessage;
 import zstreamer.rtmp.message.messageType.control.PeerBandWidthMessage;
@@ -17,7 +23,14 @@ import java.util.LinkedList;
  * @author 张贝易
  * 处理各种命令类型message的handler
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> {
+    @Autowired
+    private ApplicationContext appCtx;
+    @Autowired
+    private MediaMessagePool mediaMessagePool;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, CommandMessage msg) throws Exception {
         if (CommandMessage.CONNECT.equals(msg.getCommand().getValue())) {
@@ -29,10 +42,10 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
         } else if (CommandMessage.RELEASE.equals(msg.getCommand().getValue())) {
             AfmObject.StringObject roomName = (AfmObject.StringObject) msg.getParams().get(1);
             //将处理房间的信息的handler添加进去
-            StreamerMediaHandler streamer = new StreamerMediaHandler();
+            StreamerMediaHandler streamer = appCtx.getBean(StreamerMediaHandler.class);
             ctx.pipeline().addLast(streamer);
             //关掉同名的直播间，如果直播间不存在则不会发生任何事情
-            MediaMessagePool.closeRoom((String) roomName.getValue());
+            mediaMessagePool.closeRoom((String) roomName.getValue());
         } else if (CommandMessage.CREATE_STREAM.equals(msg.getCommand().getValue())) {
             //因为服务器没有做messageStream管理，所以仅仅返回确认信息即可
             permitCreateStream(ctx, msg);
@@ -41,16 +54,17 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
             streamer.createRoom((String) msg.getParams().get(1).getValue());
             //允许主播开始推流
             permitPublish(ctx, msg);
-        }else if (CommandMessage.FC_UNPUBLISH.equals(msg.getCommand().getValue())){
+        } else if (CommandMessage.FC_UNPUBLISH.equals(msg.getCommand().getValue())) {
             //关闭直播间
-            MediaMessagePool.closeRoom((String) msg.getParams().get(1).getValue());
-        }else if (CommandMessage.DELETE_STREAM.equals(msg.getCommand().getValue())){
+            mediaMessagePool.closeRoom((String) msg.getParams().get(1).getValue());
+        } else if (CommandMessage.DELETE_STREAM.equals(msg.getCommand().getValue())) {
             //因为服务器没有做stream的管理，所以什么都不做
         }
     }
 
     /**
      * 允许连接建立，这里的数据都是写死的，可以通过抓包看
+     *
      * @param ctx 上下文
      * @param msg 传过来的控制信息
      */
@@ -79,6 +93,7 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 
     /**
      * 允许创建流，这里的数据都是写死的，可以通过抓包看
+     *
      * @param ctx 上下文
      * @param msg 传过来的控制信息
      */
@@ -95,6 +110,7 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 
     /**
      * 允许主播推流，这里的数据都是写死的，可以通过抓包看
+     *
      * @param ctx 上下文
      * @param msg 传过来的控制信息
      */

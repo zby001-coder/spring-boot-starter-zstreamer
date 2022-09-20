@@ -1,9 +1,12 @@
-package zstreamer.rtmp.message.handlers.control;
+package zstreamer.rtmp.message.handler.control;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import zstreamer.rtmp.message.messageType.control.AckMessage;
 
 /**
@@ -11,6 +14,8 @@ import zstreamer.rtmp.message.messageType.control.AckMessage;
  * 发送Ack消息的handler
  * 由于Ack没什么用，所以就不做等待客户端Ack的逻辑了
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AckSenderReceiver extends ChannelDuplexHandler {
     private long inAckSize = 0;
     private long bytesReceived = 0;

@@ -1,13 +1,15 @@
 package zstreamer.http.example.handler.httpflv;
 
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import zstreamer.MediaMessagePool;
+import zstreamer.rtmp.example.MemoryMediaMessagePool;
 import zstreamer.http.entity.request.WrappedRequest;
 import zstreamer.http.entity.response.chunk.ChunkedResponse;
 import zstreamer.http.entity.response.chunk.SuccessorChuck;
 import zstreamer.http.example.handler.httpflv.flv.FlvHeader;
 import zstreamer.http.example.handler.httpflv.flv.FlvTag;
 import zstreamer.rtmp.message.messageType.media.MediaMessage;
+import zstreamer.rtmp.stream.MediaMessagePool;
+import zstreamer.rtmp.stream.MediaNode;
 
 /**
  * @author 张贝易
@@ -18,13 +20,15 @@ public class FlvChunkResponse extends ChunkedResponse {
     /**
      * 当前要推的message和上一个推的message
      */
-    private MediaMessagePool.Node now;
-    private MediaMessagePool.Node last;
+    private final MediaMessagePool mediaMessagePool;
+    private MediaNode now;
+    private MediaNode last;
 
-    public FlvChunkResponse(DefaultHttpResponse header, WrappedRequest request, String roomName, int timeStamp) throws Exception {
+    public FlvChunkResponse(DefaultHttpResponse header, WrappedRequest request, String roomName, int timeStamp, MediaMessagePool mediaMessagePool) throws Exception {
         super(header, request);
-        now = MediaMessagePool.pullMediaMessage(roomName, timeStamp);
+        now = mediaMessagePool.pullMediaMessage(roomName, timeStamp);
         last = null;
+        this.mediaMessagePool = mediaMessagePool;
     }
 
     @Override
@@ -62,7 +66,7 @@ public class FlvChunkResponse extends ChunkedResponse {
      *
      * @param node 媒体信息节点
      */
-    private byte[] writeBasic(MediaMessagePool.Node node) {
+    private byte[] writeBasic(MediaNode node) {
         MediaMessage firstMedia = node.getMessage();
         basicTimeStamp = firstMedia.getTimeStamp();
 

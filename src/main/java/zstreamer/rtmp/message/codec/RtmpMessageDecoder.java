@@ -2,6 +2,9 @@ package zstreamer.rtmp.message.codec;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import zstreamer.rtmp.chunk.ChunkCodec;
 import zstreamer.rtmp.handshake.RtmpHandShaker;
 import zstreamer.rtmp.message.afm.AfmDecoder;
@@ -22,6 +25,8 @@ import zstreamer.rtmp.message.messageType.media.MediaMessage;
  * @see ChunkCodec
  * @see AfmDecoder
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RtmpMessageDecoder extends SimpleChannelInboundHandler<RawMessage> {
     private int clientVersion;
 

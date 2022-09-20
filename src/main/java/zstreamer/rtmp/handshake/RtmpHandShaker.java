@@ -4,6 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import zstreamer.rtmp.message.codec.RtmpMessageDecoder;
 
 import java.util.List;
@@ -12,6 +15,8 @@ import java.util.List;
  * @author 张贝易
  * 三次握手的处理器，为了方便循环读取数据，就直接继承Decoder了
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RtmpHandShaker extends ByteToMessageDecoder {
     /**
      * 各个流程的状态值

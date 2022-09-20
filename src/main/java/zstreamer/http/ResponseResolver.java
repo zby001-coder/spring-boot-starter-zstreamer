@@ -28,13 +28,19 @@ public class ResponseResolver extends ChannelOutboundHandlerAdapter {
     private final boolean sslEnabled;
     private final int fileChunkSize;
     private final int chunkMaxFailTime;
-    private final int chunkRetryInterval;
+    private final int maxChunkRetryInterval;
+    private final int minChunkRetryInterval;
+    private final int initialChunkRetryInterval;
+    private final int preferSuccessChunk;
 
     public ResponseResolver(Environment env) {
         this.sslEnabled = env.getProperty(ServerPropertyKeys.SSL_ENABLED, Boolean.class, ServerPropertyDefault.SSL_ENABLED);
         this.fileChunkSize = env.getProperty(ServerPropertyKeys.FILE_CHUNK_SIZE, Integer.class, ServerPropertyDefault.FILE_CHUNK_SIZE);
         this.chunkMaxFailTime = env.getProperty(ServerPropertyKeys.CHUNK_RESPONSE_FAIL_MAX_TIME, Integer.class, ServerPropertyDefault.CHUNK_RESPONSE_FAIL_MAX_TIME);
-        this.chunkRetryInterval = env.getProperty(ServerPropertyKeys.CHUNK_RESPONSE_RETRY_INTERVAL, Integer.class, ServerPropertyDefault.CHUNK_RESPONSE_RETRY_INTERVAL);
+        this.minChunkRetryInterval = env.getProperty(ServerPropertyKeys.MIN_CHUNK_RESPONSE_RETRY_INTERVAL, Integer.class, ServerPropertyDefault.MIN_CHUNK_RESPONSE_RETRY_INTERVAL);
+        this.maxChunkRetryInterval = env.getProperty(ServerPropertyKeys.MAX_CHUNK_RESPONSE_RETRY_INTERVAL, Integer.class, ServerPropertyDefault.MAX_CHUNK_RESPONSE_RETRY_INTERVAL);
+        this.initialChunkRetryInterval = env.getProperty(ServerPropertyKeys.INITIAL_CHUNK_RESPONSE_RETRY_INTERVAL, Integer.class, ServerPropertyDefault.INITIAL_CHUNK_RESPONSE_RETRY_INTERVAL);
+        this.preferSuccessChunk = env.getProperty(ServerPropertyKeys.PREFER_SUCCESS_CHUNK, Integer.class, ServerPropertyDefault.PREFER_SUCCESS_CHUNK);
     }
 
     @Override
@@ -49,6 +55,8 @@ public class ResponseResolver extends ChannelOutboundHandlerAdapter {
                 private final ChannelHandlerContext context = ctx;
                 private final ChunkedResponse generator = (ChunkedResponse) msg;
                 private int failTimes = 0;
+                private int successTimes = 0;
+                private int lastWaitTime = 0;
 
                 {
                     //先写一个响应头，然后去除HttpCodec
@@ -58,11 +66,19 @@ public class ResponseResolver extends ChannelOutboundHandlerAdapter {
 
                 @Override
                 public void run() {
+                    //如果channel已经关闭，写一个结尾
+                    if (!ctx.channel().isActive()) {
+                        context.writeAndFlush(new SuccessorChuck(new byte[0]).getChunkContent(), promise);
+                        context.pipeline().addFirst(new HttpServerCodec());
+                        return;
+                    }
                     SuccessorChuck successorChuck = generator.generateChunk();
                     if (successorChuck != null) {
                         //不为空，说明有内容
                         failTimes = 0;
                         if (!successorChuck.isEnd()) {
+                            //记录当前成功次数，为计算下一次等待时间做准备
+                            successTimes++;
                             context.writeAndFlush(successorChuck.getChunkContent());
                             context.channel().eventLoop().execute(this);
                         } else {
@@ -78,7 +94,14 @@ public class ResponseResolver extends ChannelOutboundHandlerAdapter {
                             context.writeAndFlush(new SuccessorChuck(new byte[0]).getChunkContent(), promise);
                             context.pipeline().addFirst(new HttpServerCodec());
                         } else {
-                            context.channel().eventLoop().schedule(this, chunkRetryInterval, TimeUnit.MILLISECONDS);
+                            //如果当前是第一次重试，使用初始等待时间
+                            //否则根据成功次数和上次等待时间计算出一个chunk要等几秒，然后根据期望连续成功次数计算出等待时间
+                            int waitTime = lastWaitTime == 0 ? initialChunkRetryInterval : (int) (Math.ceil(((double) lastWaitTime / (successTimes == 0 ? 0.1 : successTimes)) * preferSuccessChunk));
+                            waitTime = Integer.min(maxChunkRetryInterval, waitTime);
+                            waitTime = Integer.max(minChunkRetryInterval, waitTime);
+                            successTimes = 0;
+                            lastWaitTime = waitTime;
+                            context.channel().eventLoop().schedule(this, waitTime, TimeUnit.MILLISECONDS);
                         }
                     }
                 }
