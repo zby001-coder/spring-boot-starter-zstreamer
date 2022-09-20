@@ -36,6 +36,10 @@ public class ServerPropertyDefault {
     public static final int MIN_CHUNK_RESPONSE_RETRY_INTERVAL = 100;
     public static final int INITIAL_CHUNK_RESPONSE_RETRY_INTERVAL = 300;
     public static final int PREFER_SUCCESS_CHUNK = 150;
+    /**
+     * 在chunk成功数量为0时，应当快速重试，防止一个废弃channel一直不关闭
+     */
+    public static final int FAST_FAIL_RETRY_INTERVAL = 100;
 
     /**
      * http连接最大空闲时间，毫秒

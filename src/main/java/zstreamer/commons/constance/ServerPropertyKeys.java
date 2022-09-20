@@ -36,6 +36,7 @@ public class ServerPropertyKeys {
     public static final String MIN_CHUNK_RESPONSE_RETRY_INTERVAL = "zstreamer.http.chunk.min-retry-interval";
     public static final String INITIAL_CHUNK_RESPONSE_RETRY_INTERVAL = "zstreamer.http.chunk.initial-retry-interval";
     public static final String PREFER_SUCCESS_CHUNK = "zstreamer.http.chunk.prefer-success-chunk";
+    public static final String FAST_FAIL_RETRY_INTERVAL = "zstreamer.http.chunk.fast-retry-interval";
 
     /**
      * http连接最大空闲时间，毫秒
