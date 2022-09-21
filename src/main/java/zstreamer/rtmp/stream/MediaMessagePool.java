@@ -17,7 +17,7 @@ public interface MediaMessagePool {
 
     Streamer getStreamer(String roomName);
 
-    void createRoom(String roomName, Streamer streamer);
+    boolean createRoom(String roomName, Streamer streamer);
 
     void closeRoom(String roomName);
 

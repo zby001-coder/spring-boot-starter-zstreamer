@@ -9,6 +9,8 @@ public class ServerPropertyKeys {
     public static final String WORKER_COUNT = "zstreamer.worker.count";
     public static final String HTTP_PORT = "server.port";
     public static final String RTMP_PORT = "zstreamer.rtmp.port";
+    public static final String HTTP_ADDRESS = "server.address";
+    public static final String RTMP_ADDRESS = "zstreamer.rtmp.address";
     /**
      * 下面三个参数分别为需要自动注入的handler的包名、自动注入的filter的包名
      */

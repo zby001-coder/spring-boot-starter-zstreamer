@@ -51,9 +51,14 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
             permitCreateStream(ctx, msg);
         } else if (CommandMessage.PUBLISH.equals(msg.getCommand().getValue())) {
             StreamerMediaHandler streamer = ctx.pipeline().get(StreamerMediaHandler.class);
-            streamer.createRoom((String) msg.getParams().get(1).getValue());
-            //允许主播开始推流
-            permitPublish(ctx, msg);
+            if (streamer.createRoom((String) msg.getParams().get(1).getValue())) {
+                //允许主播开始推流
+                permitPublish(ctx, msg);
+            } else {
+                //如果开房间失败，关闭这个流
+
+                ctx.channel().close();
+            }
         } else if (CommandMessage.FC_UNPUBLISH.equals(msg.getCommand().getValue())) {
             //关闭直播间
             mediaMessagePool.closeRoom((String) msg.getParams().get(1).getValue());

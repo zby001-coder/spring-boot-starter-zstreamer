@@ -4,6 +4,9 @@ import io.netty.channel.ChannelHandlerContext;
 import zstreamer.rtmp.message.messageType.media.DataMessage;
 import zstreamer.rtmp.message.messageType.media.MediaMessage;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 public class Streamer {
     private DataMessage metaData;
     private MediaMessage aac;
@@ -29,6 +32,14 @@ public class Streamer {
     public void doCloseRoom() {
         //关闭本channel
         context.channel().close();
+    }
+
+    public SocketAddress getLocalAddress() {
+        return context.channel().localAddress();
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return context.channel().remoteAddress();
     }
 
     public void pushNewMessage(MediaMessage msg) throws Exception {

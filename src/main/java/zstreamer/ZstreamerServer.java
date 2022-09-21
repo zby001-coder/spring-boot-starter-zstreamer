@@ -16,6 +16,8 @@ import zstreamer.commons.HandlerInjector;
 import zstreamer.commons.constance.ServerPropertyDefault;
 import zstreamer.commons.constance.ServerPropertyKeys;
 
+import java.net.InetSocketAddress;
+
 /**
  * @author 张贝易
  */
@@ -27,16 +29,20 @@ public class ZstreamerServer implements WebServer {
     private NioEventLoopGroup worker;
     private final Environment env;
     private final HandlerInjector handlerInjector;
-    private final int httpPort;
-    private final int rtmpPort;
+    private final InetSocketAddress httpAddress;
+    private final InetSocketAddress rtmpAddress;
     private final int bossCount;
     private final int workerCount;
 
     public ZstreamerServer(Environment env, HandlerInjector handlerInjector) {
         this.env = env;
         this.handlerInjector = handlerInjector;
-        httpPort = env.getProperty(ServerPropertyKeys.HTTP_PORT, Integer.class, ServerPropertyDefault.HTTP_PORT);
-        rtmpPort = env.getProperty(ServerPropertyKeys.RTMP_PORT, Integer.class, ServerPropertyDefault.RTMP_PORT);
+        int httpPort = env.getProperty(ServerPropertyKeys.HTTP_PORT, Integer.class, ServerPropertyDefault.HTTP_PORT);
+        int rtmpPort = env.getProperty(ServerPropertyKeys.RTMP_PORT, Integer.class, ServerPropertyDefault.RTMP_PORT);
+        String httpIp = env.getProperty(ServerPropertyKeys.HTTP_ADDRESS, String.class);
+        String rtmpIp = env.getProperty(ServerPropertyKeys.RTMP_ADDRESS, String.class);
+        httpAddress = httpIp == null ? new InetSocketAddress(httpPort) : new InetSocketAddress(httpIp, httpPort);
+        rtmpAddress = rtmpIp == null ? new InetSocketAddress(rtmpPort) : new InetSocketAddress(rtmpIp, rtmpPort);
         bossCount = env.getProperty(ServerPropertyKeys.BOSS_COUNT, Integer.class, ServerPropertyDefault.BOSS_COUNT);
         workerCount = env.getProperty(ServerPropertyKeys.WORKER_COUNT, Integer.class, ServerPropertyDefault.WORKER_COUNT);
     }
@@ -58,9 +64,10 @@ public class ZstreamerServer implements WebServer {
                     }
                 });
         try {
-            httpFuture = server.bind(httpPort).sync();
-            rtmpFuture = server.bind(rtmpPort).sync();
-            logger.info("Zstreamer start success on " + httpPort + "!!!");
+            httpFuture = server.bind(httpAddress).sync();
+            rtmpFuture = server.bind(rtmpAddress).sync();
+            logger.info("Zstreamer-http start success on " + httpAddress + "!!!");
+            logger.info("Zstreamer-rtmp start success on " + rtmpAddress + "!!!");
         } catch (InterruptedException e) {
             logger.error("Fail to start!!!");
             boss.shutdownGracefully();
@@ -82,6 +89,6 @@ public class ZstreamerServer implements WebServer {
 
     @Override
     public int getPort() {
-        return httpPort;
+        return httpAddress.getPort();
     }
 }

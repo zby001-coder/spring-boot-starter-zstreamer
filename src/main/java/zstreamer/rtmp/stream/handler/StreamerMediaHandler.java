@@ -27,10 +27,10 @@ public class StreamerMediaHandler extends SimpleChannelInboundHandler<MediaMessa
      *
      * @param roomName 房间的名称
      */
-    public void createRoom(String roomName) {
-        Streamer streamer = new Streamer(roomName, context,mediaMessagePool);
+    public boolean createRoom(String roomName) {
+        Streamer streamer = new Streamer(roomName, context, mediaMessagePool);
         this.streamer = streamer;
-        mediaMessagePool.createRoom(roomName, streamer);
+        return mediaMessagePool.createRoom(roomName, streamer);
     }
 
     public Streamer getStreamer() {
@@ -46,5 +46,11 @@ public class StreamerMediaHandler extends SimpleChannelInboundHandler<MediaMessa
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         this.context = ctx;
         super.channelRegistered(ctx);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        mediaMessagePool.closeRoom(streamer.getRoomName());
     }
 }

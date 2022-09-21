@@ -4,7 +4,6 @@ import zstreamer.rtmp.message.messageType.media.MediaMessage;
 import zstreamer.rtmp.stream.MediaMessagePool;
 import zstreamer.rtmp.stream.Streamer;
 
-import java.util.Enumeration;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,9 +45,13 @@ public class MemoryMediaMessagePool implements MediaMessagePool {
     }
 
     @Override
-    public void createRoom(String roomName, Streamer streamer) {
+    public boolean createRoom(String roomName, Streamer streamer) {
+        if (POOL.containsKey(roomName)) {
+            return false;
+        }
         POOL.put(roomName, new MemoryMediaStream());
         STREAMER.put(roomName, streamer);
+        return true;
     }
 
     @Override
