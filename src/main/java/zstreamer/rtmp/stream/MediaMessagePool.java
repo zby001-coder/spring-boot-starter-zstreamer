@@ -1,9 +1,7 @@
 package zstreamer.rtmp.stream;
 
-import zstreamer.rtmp.example.MemoryMediaNode;
 import zstreamer.rtmp.message.messageType.media.MediaMessage;
 
-import java.util.Enumeration;
 import java.util.Set;
 
 /**
@@ -23,7 +21,7 @@ public interface MediaMessagePool {
 
     boolean hasRoom(String roomName);
 
-    MemoryMediaNode pullMediaMessage(String roomName, int timeStamp) throws Exception;
+    MediaNode pullMediaMessage(String roomName, int timeStamp) throws Exception;
 
-    MemoryMediaNode pullTailMessage(String roomName) throws Exception;
+    MediaNode pullTailMessage(String roomName) throws Exception;
 }
